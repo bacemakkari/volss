@@ -249,13 +249,23 @@ interface FilterOptions {
         <div class="max-w-7xl mx-auto">
           <div class="flex items-center justify-between">
             <div class="flex items-center">
+              <!-- Back Arrow -->
+              <button 
+                (click)="goBack()"
+                class="mr-4 p-2 rounded-full hover:bg-blue-800 transition-colors duration-200"
+                title="Back to search"
+              >
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+              </button>
               <div class="bg-blue-600 p-2 rounded mr-4">
                 <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
                 </svg>
               </div>
               <div class="text-white">
-                <span class="font-medium">Paris (Tous) - Djerba (DJE) • 1 adulte, Économie</span>
+                <span class="font-medium">{{ getSearchSummary() }}</span>
               </div>
             </div>
             <div class="flex items-center space-x-4">
@@ -270,38 +280,10 @@ interface FilterOptions {
 
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Price Calendar -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-          <div class="flex items-center justify-center space-x-1 overflow-x-auto">
-            <div class="price-tab min-w-0 flex-shrink-0 px-4 py-3 rounded text-center transition-all duration-200 text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 cursor-pointer">
-              <div class="text-xs font-medium mb-1">4 mars</div>
-              <div class="text-sm font-bold">94 €</div>
-            </div>
-            <div class="price-tab min-w-0 flex-shrink-0 px-4 py-3 rounded text-center transition-all duration-200 text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 cursor-pointer">
-              <div class="text-xs font-medium mb-1">5 mars</div>
-              <div class="text-sm font-bold">94 €</div>
-            </div>
-            <div class="price-tab min-w-0 flex-shrink-0 px-4 py-3 rounded text-center transition-all duration-200 text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 cursor-pointer">
-              <div class="text-xs font-medium mb-1">6 mars</div>
-              <div class="text-sm font-bold">94 €</div>
-            </div>
-            <div class="price-tab min-w-0 flex-shrink-0 px-4 py-3 rounded text-center transition-all duration-200 selected bg-blue-900 text-white border-blue-900 cursor-pointer">
-              <div class="text-xs font-medium mb-1">7 mars</div>
-              <div class="text-sm font-bold">79 €</div>
-            </div>
-            <div class="price-tab min-w-0 flex-shrink-0 px-4 py-3 rounded text-center transition-all duration-200 text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 cursor-pointer">
-              <div class="text-xs font-medium mb-1">8 mars</div>
-              <div class="text-sm font-bold">106 €</div>
-            </div>
-            <div class="price-tab min-w-0 flex-shrink-0 px-4 py-3 rounded text-center transition-all duration-200 text-blue-500 bg-gray-50 hover:bg-gray-100 border border-gray-200 cursor-pointer">
-              <div class="text-xs font-medium mb-1">9 mars</div>
-              <div class="text-sm font-bold">85 €</div>
-            </div>
-            <div class="price-tab min-w-0 flex-shrink-0 px-4 py-3 rounded text-center transition-all duration-200 text-blue-500 bg-gray-50 hover:bg-gray-100 border border-gray-200 cursor-pointer">
-              <div class="text-xs font-medium mb-1">10 mars</div>
-              <div class="text-sm font-bold">82 €</div>
-            </div>
-          </div>
-        </div>
+        <app-price-calendar 
+          [selectedDate]="searchParams().date_depart"
+          (dateSelected)="onPriceDateSelected($event)"
+        ></app-price-calendar>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <!-- Filter Sidebar -->
@@ -320,7 +302,7 @@ interface FilterOptions {
                   <path d="M10 2L3 7v11a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V7l-7-5z"/>
                 </svg>
                 <span class="text-sm font-medium text-gray-900 mr-4">Recevoir des alertes prix</span>
-                <span class="text-sm text-gray-600">44 résultats</span>
+                <span class="text-sm text-gray-600">{{ filteredFlights().length }} résultats</span>
               </div>
               <div class="flex items-center">
                 <span class="text-sm text-gray-600 mr-2">Trier par</span>
@@ -337,205 +319,27 @@ interface FilterOptions {
             <div class="grid grid-cols-3 gap-4 mb-6">
               <div class="bg-blue-900 text-white p-4 rounded-lg text-center">
                 <div class="text-sm font-medium mb-1">Le meilleur</div>
-                <div class="text-xl font-bold">79 €</div>
-                <div class="text-xs opacity-75">2 h 55</div>
+                <div class="text-xl font-bold">{{ getLowestPrice() }} €</div>
+                <div class="text-xs opacity-75">{{ getShortestDuration() }}</div>
               </div>
               <div class="bg-gray-100 p-4 rounded-lg text-center cursor-pointer hover:bg-gray-200">
                 <div class="text-sm font-medium text-gray-600 mb-1">Le moins cher</div>
-                <div class="text-xl font-bold text-gray-900">79 €</div>
-                <div class="text-xs text-gray-500">2 h 55</div>
+                <div class="text-xl font-bold text-gray-900">{{ getLowestPrice() }} €</div>
+                <div class="text-xs text-gray-500">{{ getShortestDuration() }}</div>
               </div>
               <div class="bg-gray-100 p-4 rounded-lg text-center cursor-pointer hover:bg-gray-200">
                 <div class="text-sm font-medium text-gray-600 mb-1">Le plus rapide</div>
-                <div class="text-xl font-bold text-gray-900">96 €</div>
-                <div class="text-xs text-gray-500">2 h 50</div>
+                <div class="text-xl font-bold text-gray-900">{{ getFastestPrice() }} €</div>
+                <div class="text-xs text-gray-500">{{ getShortestDuration() }}</div>
               </div>
             </div>
 
             <!-- Flight Cards -->
             <div class="space-y-4" *ngIf="filteredFlights().length > 0">
-              <!-- First Flight Card -->
-              <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1">
-                    <div class="text-sm text-gray-600 font-medium mb-3">Transavia France</div>
-                    
-                    <div class="flex items-center space-x-6">
-                      <!-- Departure -->
-                      <div class="text-center">
-                        <div class="text-lg font-bold text-gray-900">12:35</div>
-                        <div class="text-xs text-gray-600 font-medium">ORY</div>
-                      </div>
-
-                      <!-- Flight Duration and Route -->
-                      <div class="flex-1 flex flex-col items-center">
-                        <div class="text-xs text-gray-500 mb-1">2 h 55</div>
-                        <div class="w-full flex items-center justify-center relative">
-                          <div class="h-px bg-gray-300 flex-1"></div>
-                          <svg class="w-4 h-4 text-gray-400 mx-2" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-                          </svg>
-                          <div class="h-px bg-gray-300 flex-1"></div>
-                        </div>
-                        <div class="text-xs text-green-600 mt-1 font-medium bg-green-100 px-2 py-1 rounded">Direct</div>
-                      </div>
-
-                      <!-- Arrival -->
-                      <div class="text-center">
-                        <div class="text-lg font-bold text-gray-900">15:30</div>
-                        <div class="text-xs text-gray-600 font-medium">DJE</div>
-                      </div>
-                    </div>
-
-                    <!-- Additional Info -->
-                    <div class="mt-3 flex items-center text-xs text-gray-500">
-                      <svg class="w-4 h-4 mr-1 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
-                      </svg>
-                      <span>Aucun bagage en soute inclus</span>
-                    </div>
-                  </div>
-
-                  <!-- Price and Action -->
-                  <div class="ml-6 text-right flex flex-col items-end">
-                    <div class="flex items-center mb-2">
-                      <div class="text-xs text-gray-500 mr-2">13 offres dès</div>
-                      <button class="text-gray-400 hover:text-red-500">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                        </svg>
-                      </button>
-                    </div>
-                    <div class="text-2xl font-bold text-gray-900 mb-2">79 €</div>
-                    <button class="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2 rounded font-medium transition-colors flex items-center">
-                      Voir
-                      <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                      </svg>
-                    </button>
-                    <div class="text-xs text-gray-500 mt-2 text-center">
-                      Non-remboursable<br>
-                      Échangeable moyennant des frais
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Second Flight Card -->
-              <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1">
-                    <div class="text-sm text-gray-600 font-medium mb-3">Transavia France</div>
-                    
-                    <div class="flex items-center space-x-6">
-                      <div class="text-center">
-                        <div class="text-lg font-bold text-gray-900">14:55</div>
-                        <div class="text-xs text-gray-600 font-medium">ORY</div>
-                      </div>
-                      <div class="flex-1 flex flex-col items-center">
-                        <div class="text-xs text-gray-500 mb-1">2 h 55</div>
-                        <div class="w-full flex items-center justify-center relative">
-                          <div class="h-px bg-gray-300 flex-1"></div>
-                          <svg class="w-4 h-4 text-gray-400 mx-2" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-                          </svg>
-                          <div class="h-px bg-gray-300 flex-1"></div>
-                        </div>
-                        <div class="text-xs text-green-600 mt-1 font-medium bg-green-100 px-2 py-1 rounded">Direct</div>
-                      </div>
-                      <div class="text-center">
-                        <div class="text-lg font-bold text-gray-900">17:50</div>
-                        <div class="text-xs text-gray-600 font-medium">DJE</div>
-                      </div>
-                    </div>
-                    <div class="mt-3 flex items-center text-xs text-gray-500">
-                      <svg class="w-4 h-4 mr-1 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
-                      </svg>
-                      <span>Aucun bagage en soute inclus</span>
-                    </div>
-                  </div>
-                  <div class="ml-6 text-right flex flex-col items-end">
-                    <div class="flex items-center mb-2">
-                      <div class="text-xs text-gray-500 mr-2">13 offres dès</div>
-                      <button class="text-gray-400 hover:text-red-500">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                        </svg>
-                      </button>
-                    </div>
-                    <div class="text-2xl font-bold text-gray-900 mb-2">79 €</div>
-                    <button class="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2 rounded font-medium transition-colors flex items-center">
-                      Voir
-                      <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                      </svg>
-                    </button>
-                    <div class="text-xs text-gray-500 mt-2 text-center">
-                      Non-remboursable<br>
-                      Échangeable moyennant des frais
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Third Flight Card -->
-              <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1">
-                    <div class="text-sm text-gray-600 font-medium mb-3">Nouvelair</div>
-                    
-                    <div class="flex items-center space-x-6">
-                      <div class="text-center">
-                        <div class="text-lg font-bold text-gray-900">13:05</div>
-                        <div class="text-xs text-gray-600 font-medium">CDG</div>
-                      </div>
-                      <div class="flex-1 flex flex-col items-center">
-                        <div class="text-xs text-gray-500 mb-1">2 h 50</div>
-                        <div class="w-full flex items-center justify-center relative">
-                          <div class="h-px bg-gray-300 flex-1"></div>
-                          <svg class="w-4 h-4 text-gray-400 mx-2" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-                          </svg>
-                          <div class="h-px bg-gray-300 flex-1"></div>
-                        </div>
-                        <div class="text-xs text-green-600 mt-1 font-medium bg-green-100 px-2 py-1 rounded">Direct</div>
-                      </div>
-                      <div class="text-center">
-                        <div class="text-lg font-bold text-gray-900">15:55</div>
-                        <div class="text-xs text-gray-600 font-medium">DJE</div>
-                      </div>
-                    </div>
-                    <div class="mt-3 flex items-center text-xs text-gray-500">
-                      <svg class="w-4 h-4 mr-1 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
-                      </svg>
-                      <span>Aucun bagage en soute inclus</span>
-                    </div>
-                  </div>
-                  <div class="ml-6 text-right flex flex-col items-end">
-                    <div class="flex items-center mb-2">
-                      <div class="text-xs text-gray-500 mr-2">12 offres dès</div>
-                      <button class="text-gray-400 hover:text-red-500">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                        </svg>
-                      </button>
-                    </div>
-                    <div class="text-2xl font-bold text-gray-900 mb-2">96 €</div>
-                    <button class="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2 rounded font-medium transition-colors flex items-center">
-                      Voir
-                      <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                      </svg>
-                    </button>
-                    <div class="text-xs text-gray-500 mt-2 text-center">
-                      Non-remboursable<br>
-                      Échangeable moyennant des frais
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <app-flight-card 
+                *ngFor="let flight of filteredFlights()" 
+                [flight]="flight"
+              ></app-flight-card>
             </div>
 
             <!-- No Results -->
@@ -753,6 +557,33 @@ export class FlightSearchComponent {
     return `${params.ville_depart} - ${params.ville_arrivee} • ${params.travellers.adults} adulte, ${params.travellers.cabinClass}`;
   }
 
+  getLowestPrice(): number {
+    const flights = this.filteredFlights();
+    if (flights.length === 0) return 0;
+    return Math.min(...flights.map(f => f.prix));
+  }
+
+  getFastestPrice(): number {
+    const flights = this.filteredFlights();
+    if (flights.length === 0) return 0;
+    const fastest = flights.reduce((prev, current) => {
+      const prevDuration = this.parseTimeToMinutes(prev.temps_trajet);
+      const currentDuration = this.parseTimeToMinutes(current.temps_trajet);
+      return currentDuration < prevDuration ? current : prev;
+    });
+    return fastest.prix;
+  }
+
+  getShortestDuration(): string {
+    const flights = this.filteredFlights();
+    if (flights.length === 0) return '0 h 0';
+    const shortest = flights.reduce((prev, current) => {
+      const prevDuration = this.parseTimeToMinutes(prev.temps_trajet);
+      const currentDuration = this.parseTimeToMinutes(current.temps_trajet);
+      return currentDuration < prevDuration ? current : prev;
+    });
+    return shortest.temps_trajet;
+  }
   goBack(): void {
     this.hasSearched.set(false);
     this.searchResults.set(null);
